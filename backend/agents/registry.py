@@ -1,0 +1,5 @@
+"""Backward-compatible re-exports."""
+
+from backend.agents.registry.registry import AgentRegistry, agent_registry
+
+__all__ = ["AgentRegistry", "agent_registry"]
