@@ -23,8 +23,10 @@ class Tenant(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     pincode: Mapped[str | None] = mapped_column(String(10), nullable=True)
     country: Mapped[str] = mapped_column(String(100), default="India", nullable=False)
     settings: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    tenant_type: Mapped[str] = mapped_column(String(50), default="sme", nullable=False, index=True)
+    custom_domain: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    subscription_tier: Mapped[str] = mapped_column(String(50), default="standard", nullable=False)
+    subscription_tier: Mapped[str] = mapped_column(String(50), default="starter", nullable=False)
     trial_ends_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")

@@ -40,6 +40,7 @@ class UserResponse(TimestampSchema):
     role: str
     is_active: bool
     is_verified: bool
+    is_platform_admin: bool = False
     last_login_at: datetime | None
     avatar_url: str | None
     tenant_id: UUID

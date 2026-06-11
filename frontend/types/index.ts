@@ -5,6 +5,7 @@ export interface User {
   role: string;
   tenant_id: string;
   is_active: boolean;
+  is_platform_admin?: boolean;
   avatar_url?: string;
 }
 

@@ -36,10 +36,11 @@ from backend.schemas.accounting import (
     VoucherDraftRequest,
     VoucherResponse,
 )
+from backend.platform.feature_gate import require_feature
 from backend.schemas.common import PaginatedResponse
 from backend.services.accounting.accounting_service import AccountingService
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_feature("tally"))])
 
 
 def _service(db: AsyncSession) -> AccountingService:

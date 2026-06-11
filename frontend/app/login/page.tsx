@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,6 +92,12 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              New to Mahakosh?{" "}
+              <Link href="/register" className="text-primary hover:underline">
+                Create workspace
+              </Link>
+            </p>
           </form>
         </CardContent>
       </Card>

@@ -30,9 +30,10 @@ from backend.schemas.ocr import (
     OCRUploadResponse,
     OCRValidationResponse,
 )
+from backend.platform.feature_gate import require_feature
 from backend.services.ocr_service import OCRService
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_feature("ocr"))])
 
 
 async def _run_ocr_background(job_id: UUID, tenant_id: UUID) -> None:

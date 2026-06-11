@@ -162,6 +162,8 @@ class WorkflowEngine:
                 user_id=user_id,
             )
             await self._audit(tenant_id, user_id, "workflow_completed", workflow_id, output)
+            from backend.platform.usage_tracker import UsageTracker
+            await UsageTracker(self.db).record(tenant_id, "workflow_runs")
 
         except Exception as exc:
             logger.error("workflow_execution_failed", workflow_id=str(workflow_id), error=str(exc))

@@ -1,12 +1,14 @@
+import Link from "next/link";
 import { Settings, Users, Shield, Plug } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const adminSections = [
-  { title: "User Management", description: "Manage users, roles, and permissions", icon: Users },
-  { title: "Roles & RBAC", description: "Configure role-based access control", icon: Shield },
-  { title: "System Settings", description: "Tenant configuration and preferences", icon: Settings },
-  { title: "Connectors", description: "MCP connectors and Tally integration", icon: Plug },
+  { title: "User Management", description: "Manage users, roles, and permissions", icon: Users, href: "/admin" },
+  { title: "Compliance Center", description: "Audit, retention, security events", icon: Shield, href: "/admin/compliance" },
+  { title: "Roles & RBAC", description: "Configure role-based access control", icon: Shield, href: "/admin" },
+  { title: "System Settings", description: "Tenant configuration and preferences", icon: Settings, href: "/admin" },
+  { title: "Platform Control", description: "Multi-tenant super admin portal", icon: Plug, href: "/platform" },
 ];
 
 export default function AdminPage() {
@@ -19,7 +21,8 @@ export default function AdminPage() {
             {adminSections.map((section) => {
               const Icon = section.icon;
               return (
-                <Card key={section.title} className="cursor-pointer transition-shadow hover:shadow-md">
+                <Link key={section.title} href={section.href}>
+                <Card className="cursor-pointer transition-shadow hover:shadow-md">
                   <CardHeader className="flex flex-row items-center gap-4 space-y-0">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                       <Icon className="h-5 w-5 text-primary" />
@@ -31,6 +34,7 @@ export default function AdminPage() {
                   </CardHeader>
                   <CardContent />
                 </Card>
+                </Link>
               );
             })}
           </div>

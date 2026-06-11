@@ -10,22 +10,15 @@ from backend.core.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
-    hash_password,
     verify_password,
 )
+from backend.models.platform import Subscription
 from backend.models.role import Role
 from backend.models.tenant import Tenant
 from backend.models.user import User
+from backend.platform.governance import GovernanceService
+from backend.platform.tenant_provisioner import TenantProvisioner
 from backend.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserResponse
-
-
-DEFAULT_ROLES: list[dict] = [
-    {"name": UserRole.ADMIN, "display_name": "Administrator", "permissions": ["*"]},
-    {"name": UserRole.MANAGER, "display_name": "Manager", "permissions": ["read", "write", "approve"]},
-    {"name": UserRole.ACCOUNTANT, "display_name": "Accountant", "permissions": ["read", "write", "accounting"]},
-    {"name": UserRole.VIEWER, "display_name": "Viewer", "permissions": ["read"]},
-    {"name": UserRole.AUDITOR, "display_name": "Auditor", "permissions": ["read", "audit"]},
-]
 
 
 class AuthService:
@@ -33,43 +26,29 @@ class AuthService:
         self.db = db
 
     async def register(self, request: RegisterRequest) -> tuple[User, Tenant, TokenResponse]:
-        existing = await self.db.execute(select(Tenant).where(Tenant.slug == request.tenant_slug))
-        if existing.scalar_one_or_none():
-            raise HTTPException(status.HTTP_409_CONFLICT, "Tenant slug already exists")
-
-        tenant = Tenant(
-            name=request.tenant_name,
-            slug=request.tenant_slug,
-            display_name=request.tenant_name,
-        )
-        self.db.add(tenant)
-        await self.db.flush()
-
-        roles: dict[str, Role] = {}
-        for role_def in DEFAULT_ROLES:
-            role = Role(
-                tenant_id=tenant.id,
-                name=role_def["name"],
-                display_name=role_def["display_name"],
-                permissions=role_def["permissions"],
-                is_system=True,
+        provisioner = TenantProvisioner(self.db)
+        try:
+            result = await provisioner.provision(
+                name=request.tenant_name,
+                slug=request.tenant_slug,
+                admin_email=request.email,
+                admin_password=request.password,
+                admin_full_name=request.full_name,
+                tenant_type="sme",
+                plan_tier="starter",
             )
-            self.db.add(role)
-            roles[role_def["name"]] = role
-        await self.db.flush()
+        except ValueError as exc:
+            raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
 
-        admin_role = roles[UserRole.ADMIN]
-        user = User(
-            tenant_id=tenant.id,
-            email=request.email,
-            hashed_password=hash_password(request.password),
-            full_name=request.full_name,
-            phone=request.phone,
-            role_id=admin_role.id,
-            is_verified=True,
-        )
-        self.db.add(user)
-        await self.db.flush()
+        tenant_id = UUID(result["tenant_id"])
+        user_id = UUID(result["admin_user_id"])
+        await GovernanceService(self.db).seed_default_policies(tenant_id)
+
+        tenant = await self.db.get(Tenant, tenant_id)
+        user = await self.db.get(User, user_id)
+        if user and request.phone:
+            user.phone = request.phone
+            await self.db.flush()
 
         tokens = self._create_tokens(user, tenant.id, UserRole.ADMIN)
         return user, tenant, tokens
@@ -85,6 +64,23 @@ class AuthService:
 
         if user is None or not verify_password(request.password, user.hashed_password):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
+
+        tenant = await self.db.get(Tenant, user.tenant_id)
+        if tenant is None or not tenant.is_active:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Tenant account is inactive")
+
+        sub_result = await self.db.execute(
+            select(Subscription).where(
+                Subscription.tenant_id == user.tenant_id,
+                Subscription.status.in_(["active", "trial"]),
+            ).order_by(Subscription.created_at.desc()).limit(1)
+        )
+        subscription = sub_result.scalar_one_or_none()
+        now = datetime.now(UTC)
+        if subscription is None and tenant.trial_ends_at and tenant.trial_ends_at < now:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Trial period has expired. Please upgrade your plan.")
+        if subscription and subscription.status == "trial" and subscription.trial_ends_at and subscription.trial_ends_at < now:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Trial period has expired. Please upgrade your plan.")
 
         role_result = await self.db.execute(select(Role).where(Role.id == user.role_id))
         role = role_result.scalar_one()
@@ -131,6 +127,7 @@ class AuthService:
             role=role.name,
             is_active=user.is_active,
             is_verified=user.is_verified,
+            is_platform_admin=user.is_platform_admin,
             last_login_at=user.last_login_at,
             avatar_url=user.avatar_url,
             tenant_id=user.tenant_id,

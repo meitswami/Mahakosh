@@ -26,6 +26,7 @@ from backend.models.agent_swarm import (
     ConsensusResultRecord,
 )
 from backend.models.approval import ApprovalQueue
+from backend.models.cfo import CFOBriefingRecord, CFORecommendationRecord
 from backend.models.channels import (
     ChannelAttachment,
     ChannelMessage,
@@ -60,6 +61,20 @@ from backend.models.knowledge import (
     KnowledgeTag,
 )
 from backend.models.ledger import Ledger
+from backend.models.platform import (
+    BillingEvent,
+    FeatureFlag,
+    GovernancePolicy,
+    License,
+    PartnerAccount,
+    PartnerClient,
+    SecurityEvent,
+    Subscription,
+    TenantBranding,
+    TenantSetting,
+    UsageMetric,
+)
+from backend.models.extensions import ExtensionCatalog, TenantExtensionInstall
 from backend.models.ocr_job import (
     OCRConfidenceScore,
     OCRJob,
@@ -111,6 +126,8 @@ __all__ = [
     "AgentRegistryEntry",
     "ConsensusResultRecord",
     "ApprovalQueue",
+    "CFOBriefingRecord",
+    "CFORecommendationRecord",
     "ChannelAttachment",
     "ChannelMessage",
     "ChannelNotification",
@@ -145,6 +162,19 @@ __all__ = [
     "KnowledgeSource",
     "KnowledgeTag",
     "Ledger",
+    "ExtensionCatalog",
+    "TenantExtensionInstall",
+    "BillingEvent",
+    "FeatureFlag",
+    "GovernancePolicy",
+    "License",
+    "PartnerAccount",
+    "PartnerClient",
+    "SecurityEvent",
+    "Subscription",
+    "TenantBranding",
+    "TenantSetting",
+    "UsageMetric",
     "OCRConfidenceScore",
     "OCRJob",
     "OCRJobField",

@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
 from backend.core.dependencies import CurrentUser, get_current_user, require_role
 from backend.core.security import UserRole
+from backend.platform.feature_gate import require_feature
 from backend.intelligence.service import IntelligenceService
 from backend.models.analytics import AnalyticsReport, ScheduledReport
 from backend.schemas.intelligence import (
@@ -106,7 +107,7 @@ async def natural_language_query(
 
 @router.get("/forecasts")
 async def forecasts(
-    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+    current_user: Annotated[CurrentUser, Depends(require_feature("forecasting"))],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> dict[str, Any]:
     return await _service(db).get_forecasts(current_user.tenant_id)

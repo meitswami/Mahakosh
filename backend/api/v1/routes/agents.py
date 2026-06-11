@@ -22,9 +22,10 @@ from backend.schemas.agents import (
     OrchestratorRequest,
     OrchestratorResponse,
 )
+from backend.platform.feature_gate import require_feature
 from backend.services.agent_execution_service import AgentExecutionService
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_feature("agents"))])
 
 
 @router.get("", response_model=list[AgentInfoResponse])

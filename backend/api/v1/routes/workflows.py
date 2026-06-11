@@ -12,6 +12,7 @@ from backend.core.dependencies import CurrentUser, get_current_user, require_rol
 from backend.core.security import UserRole, decode_token
 from backend.models.workflow import Workflow, WorkflowStep
 from backend.models.workflow_monitoring import WorkflowEventRecord, WorkflowLog
+from backend.platform.feature_gate import require_feature
 from backend.schemas.common import PaginatedResponse
 from backend.schemas.workflows import (
     AgentActivityResponse,
@@ -40,7 +41,7 @@ from backend.workflows.workflow_registry import workflow_registry
 from backend.workflows.workflow_tracker import LIVE_CHANNEL
 from backend.workflows.workflow_visualizer import WorkflowVisualizer
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_feature("workflows"))])
 
 
 def _get_engine(db: AsyncSession) -> WorkflowEngine:

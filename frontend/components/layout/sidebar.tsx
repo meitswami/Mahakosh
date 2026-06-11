@@ -17,6 +17,7 @@ import {
   Bot,
   Radio,
   ClipboardList,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
@@ -24,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const navigation = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "CEO Mode", href: "/dashboard", icon: LayoutDashboard },
   { title: "Intelligence", href: "/intelligence", icon: BarChart3 },
   { title: "Documents", href: "/documents", icon: FileText },
   { title: "OCR Intelligence", href: "/ocr", icon: ScanText },
@@ -39,6 +40,7 @@ const navigation = [
 
 const bottomNavigation = [
   { title: "Administration", href: "/admin", icon: Settings },
+  { title: "Platform", href: "/platform", icon: Shield },
 ];
 
 export function Sidebar() {

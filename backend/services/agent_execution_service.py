@@ -84,8 +84,13 @@ class AgentExecutionService:
             {"execution_id": str(execution.id), "confidence": result.confidence},
         )
 
+        await self._track_execution(tenant_id)
         await self.db.flush()
         return result, execution
+
+    async def _track_execution(self, tenant_id: UUID) -> None:
+        from backend.platform.usage_tracker import UsageTracker
+        await UsageTracker(self.db).record(tenant_id, "agent_executions")
 
     async def _record_event(
         self,

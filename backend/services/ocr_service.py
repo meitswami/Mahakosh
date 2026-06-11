@@ -91,6 +91,11 @@ class OCRService:
         self.db.add(job)
         await self.db.flush()
 
+        from backend.platform.usage_tracker import UsageTracker
+        tracker = UsageTracker(self.db)
+        await tracker.record(tenant_id, "documents_processed")
+        await tracker.record(tenant_id, "ocr_usage")
+
         return job
 
     async def process_job(self, job_id: UUID, tenant_id: UUID) -> OCRJob:
