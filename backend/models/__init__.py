@@ -1,3 +1,13 @@
+from backend.models.accounting import (
+    AccountingConnector,
+    AccountingValidation,
+    ItemMapping,
+    LedgerMapping,
+    SyncJob,
+    SyncLog,
+    TallyCompany,
+    VoucherExport,
+)
 from backend.models.agent import AgentExecution, AgentExecutionStatus
 from backend.models.agent_swarm import (
     AgentEventRecord,
@@ -9,6 +19,12 @@ from backend.models.agent_swarm import (
 )
 from backend.models.approval import ApprovalQueue
 from backend.models.chat import ChatContextRecord, ChatMemory, ChatMessage, ChatSession, SavedQuery
+from backend.models.accounting_twin import (
+    AccountingAlias,
+    AccountingDataIssue,
+    AccountingNormalizationJob,
+    AccountingTwinObject,
+)
 from backend.models.audit import AuditLog
 from backend.models.base import TimestampMixin, TenantMixin, UUIDPrimaryKeyMixin
 from backend.models.customer import Customer
@@ -56,6 +72,14 @@ from backend.models.workflow_monitoring import (
 )
 
 __all__ = [
+    "AccountingConnector",
+    "AccountingValidation",
+    "ItemMapping",
+    "LedgerMapping",
+    "SyncJob",
+    "SyncLog",
+    "TallyCompany",
+    "VoucherExport",
     "AgentEventRecord",
     "AgentExecution",
     "AgentExecutionStatus",
@@ -70,6 +94,10 @@ __all__ = [
     "ChatMessage",
     "ChatSession",
     "SavedQuery",
+    "AccountingTwinObject",
+    "AccountingNormalizationJob",
+    "AccountingDataIssue",
+    "AccountingAlias",
     "AuditLog",
     "Customer",
     "Document",

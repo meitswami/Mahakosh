@@ -41,7 +41,7 @@ backend/agents/
 | Workflow | `workflow` | Workflow lifecycle |
 | Audit | `audit` | Compliance verification |
 | Approval | `approval` | Human-in-the-loop queue |
-| Tally | `tally` | Tally export (write requires approval) |
+| Tally | `tally` | Tally XML export via Universal Accounting Connector Layer (write requires approval) |
 
 ## API Endpoints
 

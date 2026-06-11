@@ -33,6 +33,12 @@ class VoucherDraft(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
     igst_amount: Mapped[Decimal] = mapped_column(Numeric(15, 2), default=0, nullable=False)
     total_amount: Mapped[Decimal] = mapped_column(Numeric(15, 2), default=0, nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="draft", nullable=False)
+    connector_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("accounting_connectors.id", ondelete="SET NULL"), nullable=True
+    )
+    validation_status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
+    approval_status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
+    export_status: Mapped[str] = mapped_column(String(50), default="not_exported", nullable=False)
     narration: Mapped[str | None] = mapped_column(Text, nullable=True)
     metadata_: Mapped[dict] = mapped_column("metadata", JSONB, default=dict, nullable=False)
     created_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)

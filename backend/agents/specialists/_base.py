@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.agents.base.agent import BaseAgent
 from backend.agents.base.types import AgentContext
+from backend.agents.tools.accounting_tool import AccountingTool
 from backend.agents.tools.approval_tool import ApprovalTool
 from backend.agents.tools.knowledge_tool import KnowledgeTool
 from backend.agents.tools.workflow_tool import WorkflowTool
@@ -28,6 +29,7 @@ class SpecialistAgent(BaseAgent):
             "knowledge": KnowledgeTool(db),
             "workflow": WorkflowTool(db),
             "approval": ApprovalTool(db),
+            "accounting": AccountingTool(db),
         }
         return tools, db, owns_session
 
