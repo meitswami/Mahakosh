@@ -65,6 +65,25 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Omnichannel Communication
+    TELEGRAM_BOT_TOKEN: str | None = None
+    WHATSAPP_ACCESS_TOKEN: str | None = None
+    WHATSAPP_PHONE_NUMBER_ID: str | None = None
+    WHATSAPP_VERIFY_TOKEN: str = "mahakosh-whatsapp-verify"
+    EMAIL_SMTP_HOST: str = "localhost"
+    EMAIL_SMTP_PORT: int = 587
+    EMAIL_SMTP_USER: str | None = None
+    EMAIL_SMTP_PASSWORD: str | None = None
+    EMAIL_SMTP_USE_TLS: bool = True
+    EMAIL_IMAP_HOST: str = "localhost"
+    EMAIL_IMAP_PORT: int = 993
+    EMAIL_IMAP_USER: str | None = None
+    EMAIL_IMAP_PASSWORD: str | None = None
+    EMAIL_FROM_ADDRESS: str = "mahakosh@localhost"
+    CHANNEL_WEBHOOK_BASE_URL: str = "http://localhost:8000"
+    CHANNEL_RATE_LIMIT_MESSAGES_PER_MINUTE: int = 30
+    CHANNEL_RATE_LIMIT_UPLOADS_PER_HOUR: int = 20
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(",") if origin.strip()]

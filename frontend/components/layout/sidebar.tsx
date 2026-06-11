@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   Sparkles,
   Bot,
+  Radio,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
@@ -30,6 +31,7 @@ const navigation = [
   { title: "Agent Swarm", href: "/agents", icon: Bot },
   { title: "Workflows", href: "/workflows", icon: GitBranch },
   { title: "AI Chat", href: "/chat", icon: MessageSquare },
+  { title: "Channels", href: "/channels", icon: Radio },
   { title: "Reports", href: "/reports", icon: BarChart3 },
 ];
 

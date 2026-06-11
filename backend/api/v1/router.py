@@ -6,6 +6,7 @@ from backend.api.v1.routes import (
     agents,
     audit,
     auth,
+    channels,
     chat,
     documents,
     gst,
@@ -22,6 +23,7 @@ api_v1_router.include_router(documents.router, prefix="/documents", tags=["docum
 api_v1_router.include_router(ocr.router, prefix="/ocr", tags=["ocr"])
 api_v1_router.include_router(knowledge.router, prefix="/knowledge", tags=["knowledge"])
 api_v1_router.include_router(chat.router, prefix="/chat", tags=["chat"])
+api_v1_router.include_router(channels.router, prefix="/channels", tags=["channels"])
 api_v1_router.include_router(accounting.router, prefix="/accounting", tags=["accounting"])
 api_v1_router.include_router(gst.router, prefix="/gst", tags=["gst"])
 api_v1_router.include_router(workflows.router, prefix="/workflows", tags=["workflows"])

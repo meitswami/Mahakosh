@@ -87,6 +87,14 @@ class SyncEngine:
                 connector_record.last_sync_at = job.last_run_at
                 connector_record.status = "connected"
                 await self._log(job, "info", f"Sync completed — {count} records", result.data)
+                if user_id:
+                    await self._notify_sync_complete(
+                        connector_record.tenant_id,
+                        user_id,
+                        sync_type,
+                        count,
+                        connector_record.name,
+                    )
             else:
                 job.status = "failed"
                 await self._log(job, "error", result.error or "Sync failed")
@@ -108,6 +116,32 @@ class SyncEngine:
             await self.db.flush()
             logger.exception("sync_failed", job_id=str(job.id))
             return {"success": False, "job_id": str(job.id), "error": str(exc)}
+
+    async def _notify_sync_complete(
+        self,
+        tenant_id: UUID,
+        user_id: UUID,
+        sync_type: str,
+        record_count: int,
+        connector_name: str,
+    ) -> None:
+        try:
+            from backend.channels.base.types import NotificationEvent
+            from backend.channels.notification_center import NotificationCenter
+
+            center = NotificationCenter(self.db)
+            await center.notify(
+                tenant_id,
+                user_id,
+                NotificationEvent.SYNC_COMPLETE,
+                {
+                    "sync_type": sync_type,
+                    "record_count": str(record_count),
+                    "connector_name": connector_name,
+                },
+            )
+        except Exception as exc:
+            logger.warning("sync_notification_failed", error=str(exc))
 
     async def _log(self, job: SyncJob, level: str, message: str, details: dict | None = None) -> None:
         log = SyncLog(

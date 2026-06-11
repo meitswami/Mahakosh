@@ -5,7 +5,9 @@ from uuid import UUID
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.channels.base.types import NotificationEvent
 from backend.core.config import settings
+from backend.models.workflow import Workflow
 from backend.models.workflow_monitoring import WorkflowEventRecord, WorkflowLog
 from backend.workflows.workflow_events import WorkflowEvent, WorkflowEventType
 
@@ -54,7 +56,45 @@ class WorkflowTracker:
             event_type=event.event_type.value,
             workflow_id=str(event.workflow_id),
         )
+
+        await self._fan_out_channel_notification(event)
         return record
+
+    async def _fan_out_channel_notification(self, event: WorkflowEvent) -> None:
+        if not event.user_id:
+            return
+
+        mapping: dict[WorkflowEventType, NotificationEvent] = {
+            WorkflowEventType.WORKFLOW_COMPLETED: NotificationEvent.WORKFLOW_COMPLETED,
+            WorkflowEventType.WORKFLOW_FAILED: NotificationEvent.WORKFLOW_FAILED,
+            WorkflowEventType.APPROVAL_REQUIRED: NotificationEvent.APPROVAL_REQUIRED,
+        }
+        channel_event = mapping.get(event.event_type)
+        if not channel_event:
+            return
+
+        from backend.channels.notification_center import NotificationCenter
+
+        workflow = await self.db.get(Workflow, event.workflow_id)
+        data = {
+            "workflow_id": str(event.workflow_id),
+            "workflow_name": workflow.name if workflow else "Workflow",
+            "entity_type": "workflow",
+            "entity_id": str(event.workflow_id),
+            **event.payload,
+        }
+        if channel_event == NotificationEvent.WORKFLOW_COMPLETED and workflow:
+            if workflow.started_at and workflow.completed_at:
+                secs = int((workflow.completed_at - workflow.started_at).total_seconds())
+                data["duration"] = f"{secs}s"
+            else:
+                data["duration"] = "—"
+
+        try:
+            center = NotificationCenter(self.db)
+            await center.notify(event.tenant_id, event.user_id, channel_event, data)
+        except Exception as exc:
+            logger.warning("channel_notification_failed", error=str(exc))
 
     async def log_execution(
         self,

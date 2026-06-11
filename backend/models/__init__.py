@@ -18,6 +18,14 @@ from backend.models.agent_swarm import (
     ConsensusResultRecord,
 )
 from backend.models.approval import ApprovalQueue
+from backend.models.channels import (
+    ChannelAttachment,
+    ChannelMessage,
+    ChannelNotification,
+    ChannelSession,
+    ChannelUser,
+    CommunicationChannel,
+)
 from backend.models.chat import ChatContextRecord, ChatMemory, ChatMessage, ChatSession, SavedQuery
 from backend.models.accounting_twin import (
     AccountingAlias,
@@ -89,6 +97,12 @@ __all__ = [
     "AgentRegistryEntry",
     "ConsensusResultRecord",
     "ApprovalQueue",
+    "ChannelAttachment",
+    "ChannelMessage",
+    "ChannelNotification",
+    "ChannelSession",
+    "ChannelUser",
+    "CommunicationChannel",
     "ChatContextRecord",
     "ChatMemory",
     "ChatMessage",
