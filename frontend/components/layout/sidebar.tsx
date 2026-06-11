@@ -16,6 +16,7 @@ import {
   Sparkles,
   Bot,
   Radio,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
@@ -24,6 +25,7 @@ import { Separator } from "@/components/ui/separator";
 
 const navigation = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Intelligence", href: "/intelligence", icon: BarChart3 },
   { title: "Documents", href: "/documents", icon: FileText },
   { title: "OCR Intelligence", href: "/ocr", icon: ScanText },
   { title: "Knowledge Base", href: "/knowledge", icon: BookOpen },
@@ -32,7 +34,7 @@ const navigation = [
   { title: "Workflows", href: "/workflows", icon: GitBranch },
   { title: "AI Chat", href: "/chat", icon: MessageSquare },
   { title: "Channels", href: "/channels", icon: Radio },
-  { title: "Reports", href: "/reports", icon: BarChart3 },
+  { title: "Reports", href: "/reports", icon: ClipboardList },
 ];
 
 const bottomNavigation = [

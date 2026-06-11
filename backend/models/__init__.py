@@ -8,6 +8,14 @@ from backend.models.accounting import (
     TallyCompany,
     VoucherExport,
 )
+from backend.models.analytics import (
+    AnalyticsReport,
+    AnalyticsSnapshot,
+    AnomalyEvent,
+    BusinessScore,
+    ForecastResult,
+    ScheduledReport,
+)
 from backend.models.agent import AgentExecution, AgentExecutionStatus
 from backend.models.agent_swarm import (
     AgentEventRecord,
@@ -88,6 +96,12 @@ __all__ = [
     "SyncLog",
     "TallyCompany",
     "VoucherExport",
+    "AnalyticsReport",
+    "AnalyticsSnapshot",
+    "AnomalyEvent",
+    "BusinessScore",
+    "ForecastResult",
+    "ScheduledReport",
     "AgentEventRecord",
     "AgentExecution",
     "AgentExecutionStatus",

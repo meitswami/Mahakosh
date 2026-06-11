@@ -1,62 +1,32 @@
+"use client";
+
+import Link from "next/link";
 import {
   FileText,
   GitBranch,
   IndianRupee,
-  Receipt,
+  TrendingUp,
   Bot,
-  CheckCircle2,
+  BarChart3,
+  ArrowRight,
+  AlertTriangle,
 } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { MetricCard } from "@/components/dashboard/metric-card";
-import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
-import type { ActivityItem } from "@/types";
-
-const activities: ActivityItem[] = [
-  {
-    id: "1",
-    type: "document",
-    title: "Invoice #INV-2024-1847 processed",
-    description: "OCR extraction completed — 3 line items matched, GST validated",
-    timestamp: "2 minutes ago",
-    status: "completed",
-  },
-  {
-    id: "2",
-    type: "workflow",
-    title: "Purchase voucher draft created",
-    description: "Vendor: Sharma Traders Pvt Ltd — ₹1,24,500 incl. GST",
-    timestamp: "15 minutes ago",
-    status: "pending",
-  },
-  {
-    id: "3",
-    type: "agent",
-    title: "GST Agent validated 12AABCJ1234F1Z5",
-    description: "Active registration — Maharashtra, Regular taxpayer",
-    timestamp: "1 hour ago",
-    status: "completed",
-  },
-  {
-    id: "4",
-    type: "workflow",
-    title: "Document batch upload in progress",
-    description: "8 of 15 documents processed via OCR pipeline",
-    timestamp: "2 hours ago",
-    status: "running",
-  },
-];
-
-const agents = [
-  { name: "OCR Agent", status: "idle", tasks: 0 },
-  { name: "GST Agent", status: "idle", tasks: 0 },
-  { name: "Accounting Agent", status: "idle", tasks: 0 },
-  { name: "Master Orchestrator", status: "ready", tasks: 0 },
-];
+import { useExecutiveDashboard } from "@/hooks/use-intelligence";
+import { useWorkflows } from "@/hooks/use-workflows";
 
 export default function DashboardPage() {
+  const { data: executive, isLoading } = useExecutiveDashboard();
+  const { data: workflows } = useWorkflows(1);
+
+  const health = executive?.business_health_score;
+  const liveWorkflows = workflows?.items?.filter((w) => ["running", "queued", "waiting"].includes(w.status)).length ?? 0;
+
   return (
     <>
       <Header
@@ -67,73 +37,115 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard
-              label="Documents Processed"
-              value="1,247"
-              change={12.5}
+              label="Revenue"
+              value={isLoading ? "—" : formatCurrency(executive?.revenue ?? 0)}
+              change={executive?.growth?.revenue_pct ?? undefined}
+              icon={IndianRupee}
+            />
+            <MetricCard
+              label="Profit"
+              value={isLoading ? "—" : formatCurrency(executive?.profit ?? 0)}
+              icon={TrendingUp}
+            />
+            <MetricCard
+              label="GST Liability"
+              value={isLoading ? "—" : formatCurrency(executive?.gst_liability ?? 0)}
               icon={FileText}
             />
             <MetricCard
-              label="Vouchers Drafted"
-              value="384"
-              change={8.2}
-              icon={Receipt}
-            />
-            <MetricCard
-              label="GST Validations"
-              value="892"
-              change={15.3}
-              icon={CheckCircle2}
-            />
-            <MetricCard
-              label="Total Processed Value"
-              value={formatCurrency(28475000)}
-              change={6.7}
-              icon={IndianRupee}
+              label="Health Score"
+              value={isLoading ? "—" : `${Math.round(health?.score ?? 0)}/100`}
+              icon={BarChart3}
             />
           </div>
 
+          {executive?.insights?.warnings && executive.insights.warnings.length > 0 && (
+            <Card className="border-amber-500/30 bg-amber-500/5">
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  <p className="text-sm">{executive.insights.warnings[0].text}</p>
+                </div>
+                <Link href="/intelligence">
+                  <Button variant="outline" size="sm">View Intelligence</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <ActivityFeed activities={activities} />
-            </div>
+            <Card className="lg:col-span-2">
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-base">Top Customers</CardTitle>
+                <Link href="/intelligence" className="text-xs text-muted-foreground hover:text-foreground">
+                  Full intelligence <ArrowRight className="inline h-3 w-3" />
+                </Link>
+              </CardHeader>
+              <CardContent>
+                {executive?.top_customers?.length ? (
+                  <div className="space-y-2">
+                    {executive.top_customers.map((c, i) => (
+                      <div key={i} className="flex items-center justify-between rounded-lg border px-3 py-2">
+                        <span className="text-sm font-medium">{c.name}</span>
+                        <span className="text-sm tabular-nums">{formatCurrency(c.value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    Sync accounting data to see customer intelligence
+                  </p>
+                )}
+              </CardContent>
+            </Card>
 
             <div className="space-y-6">
-              <Card className="animate-fade-in">
-                <CardHeader>
+              <Card>
+                <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Bot className="h-4 w-4" />
-                    Agent Swarm Status
+                    Business Health
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {agents.map((agent) => (
-                      <div
-                        key={agent.name}
-                        className="flex items-center justify-between rounded-lg border px-3 py-2"
-                      >
-                        <span className="text-sm font-medium">{agent.name}</span>
-                        <Badge variant={agent.status === "ready" ? "success" : "secondary"}>
-                          {agent.status}
-                        </Badge>
+                  <div className="flex flex-col items-center py-4">
+                    <p className="text-4xl font-bold tabular-nums">{isLoading ? "—" : Math.round(health?.score ?? 0)}</p>
+                    <Badge variant="secondary" className="mt-2 capitalize">
+                      {health?.level?.replace("_", " ") ?? "—"}
+                    </Badge>
+                    {health?.components && (
+                      <div className="mt-4 w-full space-y-1.5">
+                        {Object.entries(health.components).map(([k, v]) => (
+                          <div key={k} className="flex justify-between text-xs">
+                            <span className="text-muted-foreground capitalize">{k.replace(/_/g, " ")}</span>
+                            <span className="tabular-nums">{Math.round(v)}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="animate-fade-in">
-                <CardHeader>
+              <Card>
+                <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <GitBranch className="h-4 w-4" />
-                    Active Workflows
+                    Operations
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col items-center justify-center py-6 text-center">
-                    <p className="text-2xl font-semibold">3</p>
-                    <p className="text-sm text-muted-foreground">workflows running</p>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Pending Approvals</span>
+                    <span className="font-medium">{executive?.pending_approvals ?? 0}</span>
                   </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Active Workflows</span>
+                    <span className="font-medium">{liveWorkflows}</span>
+                  </div>
+                  <Link href="/workflows">
+                    <Button variant="outline" size="sm" className="w-full">Workflow Center</Button>
+                  </Link>
                 </CardContent>
               </Card>
             </div>

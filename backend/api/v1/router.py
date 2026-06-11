@@ -10,6 +10,7 @@ from backend.api.v1.routes import (
     chat,
     documents,
     gst,
+    intelligence,
     knowledge,
     ocr,
     reports,
@@ -26,6 +27,7 @@ api_v1_router.include_router(chat.router, prefix="/chat", tags=["chat"])
 api_v1_router.include_router(channels.router, prefix="/channels", tags=["channels"])
 api_v1_router.include_router(accounting.router, prefix="/accounting", tags=["accounting"])
 api_v1_router.include_router(gst.router, prefix="/gst", tags=["gst"])
+api_v1_router.include_router(intelligence.router, prefix="/intelligence", tags=["intelligence"])
 api_v1_router.include_router(workflows.router, prefix="/workflows", tags=["workflows"])
 api_v1_router.include_router(reports.router, prefix="/reports", tags=["reports"])
 api_v1_router.include_router(audit.router, prefix="/audit", tags=["audit"])
